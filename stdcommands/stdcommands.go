@@ -41,6 +41,7 @@ import (
 	"github.com/botlabs-gg/yagpdb/v2/stdcommands/setstatus"
 	"github.com/botlabs-gg/yagpdb/v2/stdcommands/simpleembed"
 	"github.com/botlabs-gg/yagpdb/v2/stdcommands/sleep"
+	"github.com/botlabs-gg/yagpdb/v2/stdcommands/songwhip"
 	"github.com/botlabs-gg/yagpdb/v2/stdcommands/statedbg"
 	"github.com/botlabs-gg/yagpdb/v2/stdcommands/stateinfo"
 	"github.com/botlabs-gg/yagpdb/v2/stdcommands/throw"
@@ -108,6 +109,7 @@ func (p *Plugin) AddCommands() {
 		forex.Command,
 		roast.Command,
 		eightball.Command,
+		songwhip.Command,
 
 		// Maintenance
 		stateinfo.Command,
