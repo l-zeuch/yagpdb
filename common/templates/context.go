@@ -138,6 +138,8 @@ type Context struct {
 
 	IsExecedByLeaveMessage bool
 
+	IsExecedByEvalCC bool
+
 	contextFuncsAdded bool
 }
 
@@ -242,8 +244,10 @@ func (c *Context) Parse(source string) (*template.Template, error) {
 }
 
 const (
-	MaxOpsNormal  = 1000000
-	MaxOpsPremium = 2500000
+	MaxOpsNormal      = 1000000
+	MaxOpsPremium     = 2500000
+	MaxOpsEvalNormal  = 5000
+	MaxOpsEvalPremium = 10000
 )
 
 func (c *Context) Execute(source string) (string, error) {
@@ -267,7 +271,6 @@ func (c *Context) Execute(source string) (string, error) {
 
 			c.Msg.Member = member.DgoMember()
 		}
-
 	}
 
 	c.setupBaseData()
@@ -286,8 +289,14 @@ func (c *Context) executeParsed() (string, error) {
 
 	if c.IsPremium {
 		parsed = parsed.MaxOps(MaxOpsPremium)
+		if c.IsExecedByEvalCC {
+			parsed = parsed.MaxOps(MaxOpsEvalPremium)
+		}
 	} else {
 		parsed = parsed.MaxOps(MaxOpsNormal)
+		if c.IsExecedByEvalCC {
+			parsed = parsed.MaxOps(MaxOpsEvalNormal)
+		}
 	}
 
 	var buf bytes.Buffer
@@ -458,6 +467,9 @@ func (c *Context) IncreaseCheckCallCounterPremium(key string, normalLimit, premi
 }
 
 func (c *Context) IncreaseCheckGenericAPICall() bool {
+	if c.IsExecedByEvalCC {
+		return c.IncreaseCheckCallCounter("api_call", 20)
+	}
 	return c.IncreaseCheckCallCounter("api_call", 100)
 }
 

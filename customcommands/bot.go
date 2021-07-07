@@ -60,7 +60,7 @@ var _ bot.BotInitHandler = (*Plugin)(nil)
 var _ commands.CommandProvider = (*Plugin)(nil)
 
 func (p *Plugin) AddCommands() {
-	commands.AddRootCommands(p, cmdListCommands, cmdFixCommands)
+	commands.AddRootCommands(p, cmdListCommands, cmdFixCommands, cmdEvalCommand)
 }
 
 func (p *Plugin) BotInit() {
@@ -114,6 +114,96 @@ type DelayedRunCCData struct {
 	UserKey interface{} `json:"user_key"`
 
 	IsExecedByLeaveMessage bool `json:"is_execed_by_leave_message"`
+}
+
+var cmdEvalCommand = &commands.YAGCommand{
+	CmdCategory:  commands.CategoryTool,
+	Name:         "Evalcc",
+	Description:  "executes small custom command code",
+	RequiredArgs: 1,
+	Arguments: []*dcmd.ArgDef{
+		{Name: "code", Type: dcmd.String},
+	},
+	RequireDiscordPerms: []int64{discordgo.PermissionManageServer},
+	SlashCommandEnabled: false,
+	DefaultEnabled:      true,
+	RunFunc: func(data *dcmd.Data) (interface{}, error) {
+
+		// Disallow calling via exec / execAdmin
+		if data.Context().Value(commands.CtxKeyExecutedByCC) == true {
+			return "", nil
+		}
+
+		channel := data.GuildData.CS
+		ctx := templates.NewContext(data.GuildData.GS, channel, data.GuildData.MS)
+		ctx.IsExecedByEvalCC = true
+
+		maxRunes := 500
+		if ctx.IsPremium {
+			maxRunes = 1000
+		}
+
+		code := data.Args[0].Str()
+
+		// Yeah... This gave me more pain than necessary. Turns out there is a bug
+		// in dcmd which messes up the reconstructed input.
+		// Say input was ```my epic code```, dcmd spits out `` `my epic code` ``.
+		// We'll collapse these extra spaces when we find these patterns,
+		// so that we hopefully don't have to rewrite this part should that bug be fixed in future.
+		if strings.HasPrefix(code, "\x60\x60 \x60") && strings.HasSuffix(code, "\x60 \x60\x60") {
+			code = strings.Replace(code, "\x60\x60 \x60", "\x60\x60\x60", 1)
+			code = strings.Replace(code, "\x60 \x60\x60", "\x60\x60\x60", 1)
+		}
+		code = parseCodeblock(code)
+
+		// Encourage only small code snippets being tested with this command
+		if utf8.RuneCountInString(code) > maxRunes {
+			return "Code is too long for in-place evaluation. Please use the control panel.", nil
+		}
+
+		if channel == nil {
+			return "Something weird happened... Contact the support server.", nil
+		}
+
+		out, err := ctx.Execute(code)
+
+		if err != nil {
+			errFormatted := err.Error()
+			return "An error caused the custom command to stop:\n`" + errFormatted + "`", nil
+		}
+
+		return out, nil
+	},
+}
+
+var codeblockRegexp = regexp.MustCompile(`\A(?:\x60{3})(?:go\n|golang\n)?([\S\s]+)(?:\x60{3})\z`)
+
+// Parses code wrapped in Discord markdown codeblocks using the following regexp
+//
+//  `\A(?:\x60{3})(?:go\n|golang\n)?([\S\s]+)(?:\x60{3})\z`
+//
+// Hence, accepted formats are:
+//
+//  ```go
+//  (some code)
+//  ```
+//  ```golang
+//  (some code)
+//  ```
+//  ```
+//  (some code)
+//  ```
+// Formats such as ```(some code)``` are also accepted, due to how Discord's markdown functions.
+func parseCodeblock(input string) string {
+	parts := codeblockRegexp.FindStringSubmatch(input)
+
+	// No match found, input was not wrapped in (valid) codeblock markdown
+	// just dump it, don't bother fixing things for the user.
+	if parts == nil {
+		return input
+	}
+
+	return parts[1]
 }
 
 var cmdListCommands = &commands.YAGCommand{
