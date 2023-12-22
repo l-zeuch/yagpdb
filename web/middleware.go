@@ -337,6 +337,25 @@ func RequireServerAdminMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
+// RequireServerReadMiddleware restricts access to those with global or server read access.
+func RequireServerReadMiddleware(inner http.Handler) http.Handler {
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		if !ContextIsReadOnly(r.Context()) {
+			if DiscordSessionFromContext(r.Context()) == nil {
+				// redirect them to log in and return here afterwards
+				http.Redirect(w, r, "/login?goto="+url.QueryEscape(r.RequestURI), http.StatusTemporaryRedirect)
+			} else {
+				// they didn't have access and were logged in
+				http.Redirect(w, r, "/?err=noaccess", http.StatusTemporaryRedirect)
+			}
+			return
+		}
+
+		inner.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(mw)
+}
+
 // RequireBotMemberMW ensures that the bot member for the curreng guild is available, mostly used for checking the bot's roles
 func RequireBotMemberMW(inner http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

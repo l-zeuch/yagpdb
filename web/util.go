@@ -151,6 +151,15 @@ func ContextIsAdmin(ctx context.Context) bool {
 	return i.(bool)
 }
 
+func ContextIsReadOnly(ctx context.Context) bool {
+	i := ctx.Value(common.ContextKeyIsReadOnly)
+	if i == nil {
+		return false
+	}
+
+	return i.(bool)
+}
+
 // Returns base context data for control panel plugins
 func GetBaseCPContextData(ctx context.Context) (*dstate.GuildSet, TemplateData) {
 	var guild *dstate.GuildSet
