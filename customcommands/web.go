@@ -112,7 +112,9 @@ func (p *Plugin) InitWeb() {
 
 	subMux.Handle(pat.Get("/database"), getDBHandler)
 	subMux.Handle(pat.Get("/database/"), getDBHandler)
-	subMux.Handle(pat.Post("/database/search"), web.ControllerPostHandler(handleSearchDatabase, getDBSearchHandler, SearchForm{}))
+	web.ServerPublicMux.Handle(pat.Post("/customcommands/database/search"),
+		web.ControllerPostHandler(handleSearchDatabase, getDBSearchHandler, SearchForm{}),
+	)
 	subMux.Handle(pat.Post("/database/delete/:id"), web.ControllerPostHandler(handleDeleteDatabaseEntry, getDBHandler, nil))
 
 	subMux.Handle(pat.Get("/commands/:cmd/"), getCmdHandler)
