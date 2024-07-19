@@ -528,10 +528,13 @@ func tmplDBGetPattern(ctx *templates.Context, inverse bool) interface{} {
 			amount = 100
 		}
 
+		c, cancel := context.WithTimeout(context.Background(), time.Second*5)
+		defer cancel()
+
 		keyStr := limitString(templates.ToString(pattern), 256)
 		results, err := models.TemplatesUserDatabases(
-			qm.Where("guild_id = ? AND user_id = ? AND key LIKE ? AND (expires_at IS NULL OR expires_at > now())", ctx.GS.ID, userID, keyStr),
-			qm.OrderBy(order), qm.Limit(amount), qm.Offset(skip)).AllG(context.Background())
+			qm.Where("guild_id = ? AND user_id = ? AND key SIMILAR TO ? AND (expires_at IS NULL OR expires_at > now())", ctx.GS.ID, userID, keyStr),
+			qm.OrderBy(order), qm.Limit(amount), qm.Offset(skip)).AllG(c)
 		if err != nil {
 			return nil, err
 		}
@@ -599,19 +602,22 @@ func tmplDBDelMultiple(ctx *templates.Context) interface{} {
 			orderby = "value_num ASC, id ASC"
 		}
 
+		c, cancel := context.WithTimeout(context.Background(), time.Second*5)
+		defer cancel()
+
 		qms := []qm.QueryMod{qm.Where("guild_id = ?", ctx.GS.ID), qm.OrderBy(orderby), qm.Limit(amount), qm.Offset(skip)}
 		if q.Pattern.Valid {
-			qms = append(qms, qm.Where("key LIKE ?", limitString(q.Pattern.String, 256)))
+			qms = append(qms, qm.Where("key SIMILAR TO ?", limitString(q.Pattern.String, 256)))
 		}
 		if q.UserID.Valid {
 			qms = append(qms, qm.Where("user_id = ?", q.UserID.Int64))
 		}
-		rows, err := models.TemplatesUserDatabases(qms...).AllG(context.Background())
+		rows, err := models.TemplatesUserDatabases(qms...).AllG(c)
 		if err != nil {
 			return "", err
 		}
 
-		cleared, err := rows.DeleteAllG(context.Background())
+		cleared, err := rows.DeleteAllG(c)
 		cachedDBLimits.Delete(ctx.GS.ID)
 		return cleared, err
 	}
@@ -652,17 +658,19 @@ func tmplDBRank(ctx *templates.Context) interface{} {
 		CASE WHEN $1 = 'ASC'  THEN id ELSE 0 END ASC,
 		CASE WHEN $1 = 'DESC'  THEN id ELSE 0 END DESC
 	) AS position
-FROM templates_user_database WHERE (guild_id = $2) AND ($3::bigint IS NULL OR user_id = $3) AND ($4::text IS NULL OR key LIKE $4) AND (expires_at IS NULL OR expires_at > now())
+FROM templates_user_database WHERE (guild_id = $2) AND ($3::bigint IS NULL OR user_id = $3) AND ($4::text IS NULL OR key SIMILAR TO $4) AND (expires_at IS NULL OR expires_at > now())
 ) AS w
 WHERE user_id = $5 AND key = $6`
 
 		var rank int64
-		err = common.PQ.QueryRow(rawquery, order, ctx.GS.ID, q.UserID, q.Pattern, userID, key).Scan(&rank)
+		c, cancel := context.WithTimeout(context.Background(), time.Second*5)
+		defer cancel()
+
+		err = common.PQ.QueryRowContext(c, rawquery, order, ctx.GS.ID, q.UserID, q.Pattern, userID, key).Scan(&rank)
 		if err == sql.ErrNoRows {
 			return 0, nil
 		}
 		return rank, err
-
 	}
 }
 
@@ -703,10 +711,13 @@ func tmplDBCount(ctx *templates.Context) interface{} {
 
 		}
 
-		const q = `SELECT count(*) FROM templates_user_database WHERE (guild_id = $1) AND ($2::bigint IS NULL OR user_id = $2) AND ($3::text IS NULL OR key LIKE $3) AND (expires_at IS NULL or expires_at > now())`
+		const q = `SELECT count(*) FROM templates_user_database WHERE (guild_id = $1) AND ($2::bigint IS NULL OR user_id = $2) AND ($3::text IS NULL OR key SIMILAR TO $3) AND (expires_at IS NULL or expires_at > now())`
 
 		var count int64
-		err := common.PQ.QueryRow(q, ctx.GS.ID, userID, pattern).Scan(&count)
+		c, cancel := context.WithTimeout(context.Background(), time.Second*5)
+		defer cancel()
+
+		err := common.PQ.QueryRowContext(c, q, ctx.GS.ID, userID, pattern).Scan(&count)
 		return count, err
 	}
 }
@@ -773,10 +784,13 @@ func tmplDBTopEntries(ctx *templates.Context, bottom bool) interface{} {
 			amount = 100
 		}
 
+		c, cancel := context.WithTimeout(context.Background(), time.Second*5)
+		defer cancel()
+
 		keyStr := limitString(templates.ToString(pattern), 256)
 		results, err := models.TemplatesUserDatabases(
-			qm.Where("guild_id = ? AND key LIKE ? AND (expires_at IS NULL OR expires_at > now())", ctx.GS.ID, keyStr),
-			qm.OrderBy(orderBy), qm.Limit(amount), qm.Offset(skip)).AllG(context.Background())
+			qm.Where("guild_id = ? AND key SIMILAR TO ? AND (expires_at IS NULL OR expires_at > now())", ctx.GS.ID, keyStr),
+			qm.OrderBy(orderBy), qm.Limit(amount), qm.Offset(skip)).AllG(c)
 		if err != nil {
 			return nil, err
 		}
