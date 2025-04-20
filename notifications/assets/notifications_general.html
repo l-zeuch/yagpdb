@@ -40,6 +40,7 @@
                                 <select class="form-control" name="join_server_channel" data-requireperms-send>
                                     {{textChannelOptions .ActiveGuild.Channels .NotifyConfig.JoinServerChannel false ""}}
                                 </select>
+                                {{checkbox "join_server_defer_screening" "join_server_defer_screening_check" `Wait until Member has passed membership screening.` .NotifyConfig.JoinServerDeferScreening}}
                             </div>
                             <div class="form-group">
                                 <label for="responses">Message (<span class="cc-length-counter">x</span>/5000)</label>
@@ -120,6 +121,7 @@
                             {{checkbox "join_dm_enabled" "join_dm_enabled" `<h2 class="card-title">Join message in direct message</h2>` .NotifyConfig.JoinDMEnabled}}
                         </header>
                         <div class="card-body">
+                            {{checkbox "join_dm_defer_screening" "join_dm_defer_screening_check" `Wait until Member has passed membership screening.` .NotifyConfig.JoinDMDeferScreening}}
                             <div class="form-group">
                                 <label for="responses">Message (<span class="cc-length-counter">x</span>/5000)</label>
                                 <textarea rows="5" class="form-control"

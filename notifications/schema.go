@@ -78,4 +78,8 @@ AND EXISTS(SELECT 1 FROM information_schema.columns WHERE table_name='general_no
 	ALTER TABLE general_notification_configs RENAME COLUMN leave_msgs_ to leave_msgs;
 END IF;
 END $$;
+`, `
+ALTER TABLE general_notification_configs ADD COLUMN IF NOT EXISTS join_dm_defer_screening BOOLEAN NOT NULL DEFAULT FALSE;
+`, `
+ALTER TABLE general_notification_configs ADD COLUMN IF NOT EXISTS join_server_defer_screening BOOLEAN NOT NULL DEFAULT FALSE;
 `}

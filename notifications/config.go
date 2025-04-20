@@ -51,12 +51,14 @@ type Config struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 
-	JoinServerEnabled bool  `json:"join_server_enabled" schema:"join_server_enabled"`
-	JoinServerChannel int64 `json:"join_server_channel" schema:"join_server_channel" valid:"channel,true"`
+	JoinServerEnabled        bool  `json:"join_server_enabled" schema:"join_server_enabled"`
+	JoinServerChannel        int64 `json:"join_server_channel" schema:"join_server_channel" valid:"channel,true"`
+	JoinServerDeferScreening bool  `json:"join_server_defer_screening" schema:"join_server_defer_screening"`
 
-	JoinServerMsgs []string `json:"join_server_msgs" schema:"join_server_msgs" valid:"template,5000"`
-	JoinDMEnabled  bool     `json:"join_dm_enabled" schema:"join_dm_enabled"`
-	JoinDMMsg      string   `json:"join_dm_msg" schema:"join_dm_msg" valid:"template,5000"`
+	JoinServerMsgs       []string `json:"join_server_msgs" schema:"join_server_msgs" valid:"template,5000"`
+	JoinDMEnabled        bool     `json:"join_dm_enabled" schema:"join_dm_enabled"`
+	JoinDMMsg            string   `json:"join_dm_msg" schema:"join_dm_msg" valid:"template,5000"`
+	JoinDMDeferScreening bool     `json:"join_dm_defer_screening" schema:"join_dm_defer_screening"`
 
 	LeaveEnabled bool     `json:"leave_enabled" schema:"leave_enabled"`
 	LeaveChannel int64    `json:"leave_channel" schema:"leave_channel" valid:"channel,true"`
@@ -103,12 +105,14 @@ func (c *Config) ToModel() *models.GeneralNotificationConfig {
 		CreatedAt: c.CreatedAt,
 		UpdatedAt: c.UpdatedAt,
 
-		JoinServerEnabled: null.BoolFrom(c.JoinServerEnabled),
-		JoinServerChannel: null.StringFrom(discordgo.StrID(c.JoinServerChannel)),
+		JoinServerEnabled:        null.BoolFrom(c.JoinServerEnabled),
+		JoinServerChannel:        null.StringFrom(discordgo.StrID(c.JoinServerChannel)),
+		JoinServerDeferScreening: null.BoolFrom(c.JoinServerDeferScreening),
 
-		JoinServerMsgs: null.StringFrom(writeLegacyMultiResponseColumn(c.JoinServerMsgs)),
-		JoinDMEnabled:  null.BoolFrom(c.JoinDMEnabled),
-		JoinDMMsg:      null.StringFrom(c.JoinDMMsg),
+		JoinServerMsgs:       null.StringFrom(writeLegacyMultiResponseColumn(c.JoinServerMsgs)),
+		JoinDMEnabled:        null.BoolFrom(c.JoinDMEnabled),
+		JoinDMMsg:            null.StringFrom(c.JoinDMMsg),
+		JoinDMDeferScreening: null.BoolFrom(c.JoinDMDeferScreening),
 
 		LeaveEnabled: null.BoolFrom(c.LeaveEnabled),
 		LeaveChannel: null.StringFrom(discordgo.StrID(c.LeaveChannel)),
@@ -130,12 +134,14 @@ func configFromModel(model *models.GeneralNotificationConfig) *Config {
 		CreatedAt: model.CreatedAt,
 		UpdatedAt: model.UpdatedAt,
 
-		JoinServerEnabled: model.JoinServerEnabled.Bool,
-		JoinServerChannel: joinServerChannel,
+		JoinServerEnabled:        model.JoinServerEnabled.Bool,
+		JoinServerChannel:        joinServerChannel,
+		JoinServerDeferScreening: model.JoinServerDeferScreening.Bool,
 
-		JoinServerMsgs: readLegacyMultiResponseColumn(model.JoinServerMsgs.String),
-		JoinDMEnabled:  model.JoinDMEnabled.Bool,
-		JoinDMMsg:      model.JoinDMMsg.String,
+		JoinServerMsgs:       readLegacyMultiResponseColumn(model.JoinServerMsgs.String),
+		JoinDMEnabled:        model.JoinDMEnabled.Bool,
+		JoinDMMsg:            model.JoinDMMsg.String,
+		JoinDMDeferScreening: model.JoinDMDeferScreening.Bool,
 
 		LeaveEnabled: model.LeaveEnabled.Bool,
 		LeaveChannel: leaveChannel,

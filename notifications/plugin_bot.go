@@ -24,6 +24,7 @@ func (p *Plugin) BotInit() {
 	eventsystem.AddHandlerAsyncLast(p, HandleGuildMemberAdd, eventsystem.EventGuildMemberAdd)
 	eventsystem.AddHandlerAsyncLast(p, HandleGuildMemberRemove, eventsystem.EventGuildMemberRemove)
 	eventsystem.AddHandlerFirst(p, HandleChannelUpdate, eventsystem.EventChannelUpdate)
+	eventsystem.AddHandlerAsyncLast(p, HandleGuildMemberUpdate, eventsystem.EventGuildMemberUpdate)
 
 	pubsub.AddHandler("invalidate_notifications_config_cache", handleInvalidateConfigCache, nil)
 }
@@ -72,40 +73,115 @@ func HandleGuildMemberAdd(evtData *eventsystem.EventData) (retry bool, err error
 
 	// Beware of the pyramid and its curses
 	if config.JoinDMEnabled && !evt.User.Bot {
-		cid, err := common.BotSession.UserChannelCreate(evt.User.ID)
-		if err != nil {
-			if bot.CheckDiscordErrRetry(err) {
-				return true, errors.WithStackIf(err)
-			}
+		if !config.JoinDMDeferScreening && !ms.Member.Pending {
+			cid, err := common.BotSession.UserChannelCreate(evt.User.ID)
+			if err != nil {
+				if bot.CheckDiscordErrRetry(err) {
+					return true, errors.WithStackIf(err)
+				}
 
-			logger.WithError(err).WithField("user", evt.User.ID).Error("Failed retrieving user channel")
-		} else {
-			thinCState := &dstate.ChannelState{
-				ID:      cid.ID,
-				Name:    evt.User.Username,
-				Type:    discordgo.ChannelTypeDM,
-				GuildID: gs.ID,
-			}
+				logger.WithError(err).WithField("user", evt.User.ID).Error("Failed retrieving user channel")
+			} else {
+				thinCState := &dstate.ChannelState{
+					ID:      cid.ID,
+					Name:    evt.User.Username,
+					Type:    discordgo.ChannelTypeDM,
+					GuildID: gs.ID,
+				}
 
-			go analytics.RecordActiveUnit(gs.ID, &Plugin{}, "posted_join_server_msg")
+				go analytics.RecordActiveUnit(gs.ID, &Plugin{}, "posted_join_server_msg")
 
-			if sendTemplate(gs, thinCState, config.JoinDMMsg, ms, "join dm", false, templates.ExecutedFromJoin) {
-				return true, nil
+				if sendTemplate(gs, thinCState, config.JoinDMMsg, ms, "join dm", false, templates.ExecutedFromJoin) {
+					return true, nil
+				}
 			}
 		}
 	}
 
 	if config.JoinServerEnabled && len(config.JoinServerMsgs) > 0 {
-		channel := gs.GetChannel(config.JoinServerChannel)
-		if channel == nil {
-			return
+		if !config.JoinServerDeferScreening && !ms.Member.Pending {
+			channel := gs.GetChannel(config.JoinServerChannel)
+			if channel == nil {
+				return
+			}
+
+			go analytics.RecordActiveUnit(gs.ID, &Plugin{}, "posted_join_server_dm")
+
+			chanMsg := config.JoinServerMsgs[rand.Intn(len(config.JoinServerMsgs))]
+			if sendTemplate(gs, channel, chanMsg, ms, "join server msg", config.CensorInvites, templates.ExecutedFromJoin) {
+				return true, nil
+			}
 		}
+	}
 
-		go analytics.RecordActiveUnit(gs.ID, &Plugin{}, "posted_join_server_dm")
+	return false, nil
+}
 
-		chanMsg := config.JoinServerMsgs[rand.Intn(len(config.JoinServerMsgs))]
-		if sendTemplate(gs, channel, chanMsg, ms, "join server msg", config.CensorInvites, templates.ExecutedFromJoin) {
-			return true, nil
+func HandleGuildMemberUpdate(evtData *eventsystem.EventData) (retry bool, err error) {
+	evt := evtData.GuildMemberUpdate()
+	ms := dstate.MemberStateFromMember(evt.Member)
+
+	// We only want to send the message if the member is no longer pending
+	if ms.Member.Pending {
+		return
+	}
+
+	config, err := BotCachedGetConfig(evt.GuildID)
+	if err != nil {
+		return true, errors.WithStackIf(err)
+	}
+
+	if !config.JoinServerEnabled && !config.JoinDMEnabled {
+		return
+	}
+
+	if (!config.JoinDMEnabled || evt.User.Bot) && !config.JoinServerEnabled {
+		return
+	}
+
+	gs := evtData.GS
+	ms.GuildID = evt.GuildID
+
+	// Beware of the pyramid and its curses
+	if config.JoinDMEnabled && !evt.User.Bot {
+		if config.JoinDMDeferScreening && !ms.Member.Pending {
+			cid, err := common.BotSession.UserChannelCreate(evt.User.ID)
+			if err != nil {
+				if bot.CheckDiscordErrRetry(err) {
+					return true, errors.WithStackIf(err)
+				}
+
+				logger.WithError(err).WithField("user", evt.User.ID).Error("Failed retrieving user channel")
+			} else {
+				thinCState := &dstate.ChannelState{
+					ID:      cid.ID,
+					Name:    evt.User.Username,
+					Type:    discordgo.ChannelTypeDM,
+					GuildID: gs.ID,
+				}
+
+				go analytics.RecordActiveUnit(gs.ID, &Plugin{}, "posted_join_server_msg")
+
+				if sendTemplate(gs, thinCState, config.JoinDMMsg, ms, "join dm", false, templates.ExecutedFromJoin) {
+					return true, nil
+				}
+			}
+		}
+	}
+
+	if config.JoinServerEnabled && len(config.JoinServerMsgs) > 0 {
+		if config.JoinServerDeferScreening && !ms.Member.Pending {
+			channel := gs.GetChannel(config.JoinServerChannel)
+			if channel == nil {
+				return
+			}
+
+			go analytics.RecordActiveUnit(gs.ID, &Plugin{}, "posted_join_server_dm")
+
+			chanMsg := config.JoinServerMsgs[rand.Intn(len(config.JoinServerMsgs))]
+			if sendTemplate(gs, channel, chanMsg, ms, "join server msg", config.CensorInvites, templates.ExecutedFromJoin) {
+				return true, nil
+			}
 		}
 	}
 

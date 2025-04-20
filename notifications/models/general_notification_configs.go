@@ -24,87 +24,117 @@ import (
 
 // GeneralNotificationConfig is an object representing the database table.
 type GeneralNotificationConfig struct {
-	GuildID           int64       `boil:"guild_id" json:"guild_id" toml:"guild_id" yaml:"guild_id"`
-	CreatedAt         time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
-	UpdatedAt         time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
-	JoinServerEnabled null.Bool   `boil:"join_server_enabled" json:"join_server_enabled,omitempty" toml:"join_server_enabled" yaml:"join_server_enabled,omitempty"`
-	JoinServerChannel null.String `boil:"join_server_channel" json:"join_server_channel,omitempty" toml:"join_server_channel" yaml:"join_server_channel,omitempty"`
-	JoinServerMsgs    null.String `boil:"join_server_msgs" json:"join_server_msgs,omitempty" toml:"join_server_msgs" yaml:"join_server_msgs,omitempty"`
-	JoinDMEnabled     null.Bool   `boil:"join_dm_enabled" json:"join_dm_enabled,omitempty" toml:"join_dm_enabled" yaml:"join_dm_enabled,omitempty"`
-	JoinDMMsg         null.String `boil:"join_dm_msg" json:"join_dm_msg,omitempty" toml:"join_dm_msg" yaml:"join_dm_msg,omitempty"`
-	LeaveEnabled      null.Bool   `boil:"leave_enabled" json:"leave_enabled,omitempty" toml:"leave_enabled" yaml:"leave_enabled,omitempty"`
-	LeaveChannel      null.String `boil:"leave_channel" json:"leave_channel,omitempty" toml:"leave_channel" yaml:"leave_channel,omitempty"`
-	LeaveMsgs         null.String `boil:"leave_msgs" json:"leave_msgs,omitempty" toml:"leave_msgs" yaml:"leave_msgs,omitempty"`
-	TopicEnabled      null.Bool   `boil:"topic_enabled" json:"topic_enabled,omitempty" toml:"topic_enabled" yaml:"topic_enabled,omitempty"`
-	TopicChannel      null.String `boil:"topic_channel" json:"topic_channel,omitempty" toml:"topic_channel" yaml:"topic_channel,omitempty"`
-	CensorInvites     null.Bool   `boil:"censor_invites" json:"censor_invites,omitempty" toml:"censor_invites" yaml:"censor_invites,omitempty"`
+	GuildID                  int64       `boil:"guild_id" json:"guild_id" toml:"guild_id" yaml:"guild_id"`
+	CreatedAt                time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
+	UpdatedAt                time.Time   `boil:"updated_at" json:"updated_at" toml:"updated_at" yaml:"updated_at"`
+	JoinServerEnabled        null.Bool   `boil:"join_server_enabled" json:"join_server_enabled,omitempty" toml:"join_server_enabled" yaml:"join_server_enabled,omitempty"`
+	JoinServerChannel        null.String `boil:"join_server_channel" json:"join_server_channel,omitempty" toml:"join_server_channel" yaml:"join_server_channel,omitempty"`
+	JoinServerMSG            null.String `boil:"join_server_msg" json:"join_server_msg,omitempty" toml:"join_server_msg" yaml:"join_server_msg,omitempty"`
+	JoinServerMSGS           null.String `boil:"join_server_msgs_" json:"join_server_msgs_,omitempty" toml:"join_server_msgs_" yaml:"join_server_msgs_,omitempty"`
+	JoinDMEnabled            null.Bool   `boil:"join_dm_enabled" json:"join_dm_enabled,omitempty" toml:"join_dm_enabled" yaml:"join_dm_enabled,omitempty"`
+	JoinDMMsg                null.String `boil:"join_dm_msg" json:"join_dm_msg,omitempty" toml:"join_dm_msg" yaml:"join_dm_msg,omitempty"`
+	LeaveEnabled             null.Bool   `boil:"leave_enabled" json:"leave_enabled,omitempty" toml:"leave_enabled" yaml:"leave_enabled,omitempty"`
+	LeaveChannel             null.String `boil:"leave_channel" json:"leave_channel,omitempty" toml:"leave_channel" yaml:"leave_channel,omitempty"`
+	LeaveMSG                 null.String `boil:"leave_msg" json:"leave_msg,omitempty" toml:"leave_msg" yaml:"leave_msg,omitempty"`
+	LeaveMSGS                null.String `boil:"leave_msgs_" json:"leave_msgs_,omitempty" toml:"leave_msgs_" yaml:"leave_msgs_,omitempty"`
+	TopicEnabled             null.Bool   `boil:"topic_enabled" json:"topic_enabled,omitempty" toml:"topic_enabled" yaml:"topic_enabled,omitempty"`
+	TopicChannel             null.String `boil:"topic_channel" json:"topic_channel,omitempty" toml:"topic_channel" yaml:"topic_channel,omitempty"`
+	CensorInvites            null.Bool   `boil:"censor_invites" json:"censor_invites,omitempty" toml:"censor_invites" yaml:"censor_invites,omitempty"`
+	JoinServerMsgs           null.String `boil:"join_server_msgs" json:"join_server_msgs,omitempty" toml:"join_server_msgs" yaml:"join_server_msgs,omitempty"`
+	LeaveMsgs                null.String `boil:"leave_msgs" json:"leave_msgs,omitempty" toml:"leave_msgs" yaml:"leave_msgs,omitempty"`
+	JoinDMDeferScreening     null.Bool   `boil:"join_dm_defer_screening" json:"join_dm_defer_screening" toml:"join_dm_defer_screening" yaml:"join_dm_defer_screening"`
+	JoinServerDeferScreening null.Bool   `boil:"join_server_defer_screening" json:"join_server_defer_screening" toml:"join_server_defer_screening" yaml:"join_server_defer_screening"`
 
 	R *generalNotificationConfigR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L generalNotificationConfigL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var GeneralNotificationConfigColumns = struct {
-	GuildID           string
-	CreatedAt         string
-	UpdatedAt         string
-	JoinServerEnabled string
-	JoinServerChannel string
-	JoinServerMsgs    string
-	JoinDMEnabled     string
-	JoinDMMsg         string
-	LeaveEnabled      string
-	LeaveChannel      string
-	LeaveMsgs         string
-	TopicEnabled      string
-	TopicChannel      string
-	CensorInvites     string
+	GuildID                  string
+	CreatedAt                string
+	UpdatedAt                string
+	JoinServerEnabled        string
+	JoinServerChannel        string
+	JoinServerMSG            string
+	JoinServerMSGS           string
+	JoinDMEnabled            string
+	JoinDMMsg                string
+	LeaveEnabled             string
+	LeaveChannel             string
+	LeaveMSG                 string
+	LeaveMSGS                string
+	TopicEnabled             string
+	TopicChannel             string
+	CensorInvites            string
+	JoinServerMsgs           string
+	LeaveMsgs                string
+	JoinDMDeferScreening     string
+	JoinServerDeferScreening string
 }{
-	GuildID:           "guild_id",
-	CreatedAt:         "created_at",
-	UpdatedAt:         "updated_at",
-	JoinServerEnabled: "join_server_enabled",
-	JoinServerChannel: "join_server_channel",
-	JoinServerMsgs:    "join_server_msgs",
-	JoinDMEnabled:     "join_dm_enabled",
-	JoinDMMsg:         "join_dm_msg",
-	LeaveEnabled:      "leave_enabled",
-	LeaveChannel:      "leave_channel",
-	LeaveMsgs:         "leave_msgs",
-	TopicEnabled:      "topic_enabled",
-	TopicChannel:      "topic_channel",
-	CensorInvites:     "censor_invites",
+	GuildID:                  "guild_id",
+	CreatedAt:                "created_at",
+	UpdatedAt:                "updated_at",
+	JoinServerEnabled:        "join_server_enabled",
+	JoinServerChannel:        "join_server_channel",
+	JoinServerMSG:            "join_server_msg",
+	JoinServerMSGS:           "join_server_msgs_",
+	JoinDMEnabled:            "join_dm_enabled",
+	JoinDMMsg:                "join_dm_msg",
+	LeaveEnabled:             "leave_enabled",
+	LeaveChannel:             "leave_channel",
+	LeaveMSG:                 "leave_msg",
+	LeaveMSGS:                "leave_msgs_",
+	TopicEnabled:             "topic_enabled",
+	TopicChannel:             "topic_channel",
+	CensorInvites:            "censor_invites",
+	JoinServerMsgs:           "join_server_msgs",
+	LeaveMsgs:                "leave_msgs",
+	JoinDMDeferScreening:     "join_dm_defer_screening",
+	JoinServerDeferScreening: "join_server_defer_screening",
 }
 
 var GeneralNotificationConfigTableColumns = struct {
-	GuildID           string
-	CreatedAt         string
-	UpdatedAt         string
-	JoinServerEnabled string
-	JoinServerChannel string
-	JoinServerMsgs    string
-	JoinDMEnabled     string
-	JoinDMMsg         string
-	LeaveEnabled      string
-	LeaveChannel      string
-	LeaveMsgs         string
-	TopicEnabled      string
-	TopicChannel      string
-	CensorInvites     string
+	GuildID                  string
+	CreatedAt                string
+	UpdatedAt                string
+	JoinServerEnabled        string
+	JoinServerChannel        string
+	JoinServerMSG            string
+	JoinServerMSGS           string
+	JoinDMEnabled            string
+	JoinDMMsg                string
+	LeaveEnabled             string
+	LeaveChannel             string
+	LeaveMSG                 string
+	LeaveMSGS                string
+	TopicEnabled             string
+	TopicChannel             string
+	CensorInvites            string
+	JoinServerMsgs           string
+	LeaveMsgs                string
+	JoinDMDeferScreening     string
+	JoinServerDeferScreening string
 }{
-	GuildID:           "general_notification_configs.guild_id",
-	CreatedAt:         "general_notification_configs.created_at",
-	UpdatedAt:         "general_notification_configs.updated_at",
-	JoinServerEnabled: "general_notification_configs.join_server_enabled",
-	JoinServerChannel: "general_notification_configs.join_server_channel",
-	JoinServerMsgs:    "general_notification_configs.join_server_msgs",
-	JoinDMEnabled:     "general_notification_configs.join_dm_enabled",
-	JoinDMMsg:         "general_notification_configs.join_dm_msg",
-	LeaveEnabled:      "general_notification_configs.leave_enabled",
-	LeaveChannel:      "general_notification_configs.leave_channel",
-	LeaveMsgs:         "general_notification_configs.leave_msgs",
-	TopicEnabled:      "general_notification_configs.topic_enabled",
-	TopicChannel:      "general_notification_configs.topic_channel",
-	CensorInvites:     "general_notification_configs.censor_invites",
+	GuildID:                  "general_notification_configs.guild_id",
+	CreatedAt:                "general_notification_configs.created_at",
+	UpdatedAt:                "general_notification_configs.updated_at",
+	JoinServerEnabled:        "general_notification_configs.join_server_enabled",
+	JoinServerChannel:        "general_notification_configs.join_server_channel",
+	JoinServerMSG:            "general_notification_configs.join_server_msg",
+	JoinServerMSGS:           "general_notification_configs.join_server_msgs_",
+	JoinDMEnabled:            "general_notification_configs.join_dm_enabled",
+	JoinDMMsg:                "general_notification_configs.join_dm_msg",
+	LeaveEnabled:             "general_notification_configs.leave_enabled",
+	LeaveChannel:             "general_notification_configs.leave_channel",
+	LeaveMSG:                 "general_notification_configs.leave_msg",
+	LeaveMSGS:                "general_notification_configs.leave_msgs_",
+	TopicEnabled:             "general_notification_configs.topic_enabled",
+	TopicChannel:             "general_notification_configs.topic_channel",
+	CensorInvites:            "general_notification_configs.censor_invites",
+	JoinServerMsgs:           "general_notification_configs.join_server_msgs",
+	LeaveMsgs:                "general_notification_configs.leave_msgs",
+	JoinDMDeferScreening:     "general_notification_configs.join_dm_defer_screening",
+	JoinServerDeferScreening: "general_notification_configs.join_server_defer_screening",
 }
 
 // Generated where
@@ -227,36 +257,57 @@ func (w whereHelpernull_String) NIN(slice []string) qm.QueryMod {
 func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
 func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
 
+type whereHelperbool struct{ field string }
+
+func (w whereHelperbool) EQ(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperbool) NEQ(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperbool) LT(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperbool) LTE(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperbool) GT(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperbool) GTE(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+
 var GeneralNotificationConfigWhere = struct {
-	GuildID           whereHelperint64
-	CreatedAt         whereHelpertime_Time
-	UpdatedAt         whereHelpertime_Time
-	JoinServerEnabled whereHelpernull_Bool
-	JoinServerChannel whereHelpernull_String
-	JoinServerMsgs    whereHelpernull_String
-	JoinDMEnabled     whereHelpernull_Bool
-	JoinDMMsg         whereHelpernull_String
-	LeaveEnabled      whereHelpernull_Bool
-	LeaveChannel      whereHelpernull_String
-	LeaveMsgs         whereHelpernull_String
-	TopicEnabled      whereHelpernull_Bool
-	TopicChannel      whereHelpernull_String
-	CensorInvites     whereHelpernull_Bool
+	GuildID                  whereHelperint64
+	CreatedAt                whereHelpertime_Time
+	UpdatedAt                whereHelpertime_Time
+	JoinServerEnabled        whereHelpernull_Bool
+	JoinServerChannel        whereHelpernull_String
+	JoinServerMSG            whereHelpernull_String
+	JoinServerMSGS           whereHelpernull_String
+	JoinDMEnabled            whereHelpernull_Bool
+	JoinDMMsg                whereHelpernull_String
+	LeaveEnabled             whereHelpernull_Bool
+	LeaveChannel             whereHelpernull_String
+	LeaveMSG                 whereHelpernull_String
+	LeaveMSGS                whereHelpernull_String
+	TopicEnabled             whereHelpernull_Bool
+	TopicChannel             whereHelpernull_String
+	CensorInvites            whereHelpernull_Bool
+	JoinServerMsgs           whereHelpernull_String
+	LeaveMsgs                whereHelpernull_String
+	JoinDMDeferScreening     whereHelperbool
+	JoinServerDeferScreening whereHelperbool
 }{
-	GuildID:           whereHelperint64{field: "\"general_notification_configs\".\"guild_id\""},
-	CreatedAt:         whereHelpertime_Time{field: "\"general_notification_configs\".\"created_at\""},
-	UpdatedAt:         whereHelpertime_Time{field: "\"general_notification_configs\".\"updated_at\""},
-	JoinServerEnabled: whereHelpernull_Bool{field: "\"general_notification_configs\".\"join_server_enabled\""},
-	JoinServerChannel: whereHelpernull_String{field: "\"general_notification_configs\".\"join_server_channel\""},
-	JoinServerMsgs:    whereHelpernull_String{field: "\"general_notification_configs\".\"join_server_msgs\""},
-	JoinDMEnabled:     whereHelpernull_Bool{field: "\"general_notification_configs\".\"join_dm_enabled\""},
-	JoinDMMsg:         whereHelpernull_String{field: "\"general_notification_configs\".\"join_dm_msg\""},
-	LeaveEnabled:      whereHelpernull_Bool{field: "\"general_notification_configs\".\"leave_enabled\""},
-	LeaveChannel:      whereHelpernull_String{field: "\"general_notification_configs\".\"leave_channel\""},
-	LeaveMsgs:         whereHelpernull_String{field: "\"general_notification_configs\".\"leave_msgs\""},
-	TopicEnabled:      whereHelpernull_Bool{field: "\"general_notification_configs\".\"topic_enabled\""},
-	TopicChannel:      whereHelpernull_String{field: "\"general_notification_configs\".\"topic_channel\""},
-	CensorInvites:     whereHelpernull_Bool{field: "\"general_notification_configs\".\"censor_invites\""},
+	GuildID:                  whereHelperint64{field: "\"general_notification_configs\".\"guild_id\""},
+	CreatedAt:                whereHelpertime_Time{field: "\"general_notification_configs\".\"created_at\""},
+	UpdatedAt:                whereHelpertime_Time{field: "\"general_notification_configs\".\"updated_at\""},
+	JoinServerEnabled:        whereHelpernull_Bool{field: "\"general_notification_configs\".\"join_server_enabled\""},
+	JoinServerChannel:        whereHelpernull_String{field: "\"general_notification_configs\".\"join_server_channel\""},
+	JoinServerMSG:            whereHelpernull_String{field: "\"general_notification_configs\".\"join_server_msg\""},
+	JoinServerMSGS:           whereHelpernull_String{field: "\"general_notification_configs\".\"join_server_msgs_\""},
+	JoinDMEnabled:            whereHelpernull_Bool{field: "\"general_notification_configs\".\"join_dm_enabled\""},
+	JoinDMMsg:                whereHelpernull_String{field: "\"general_notification_configs\".\"join_dm_msg\""},
+	LeaveEnabled:             whereHelpernull_Bool{field: "\"general_notification_configs\".\"leave_enabled\""},
+	LeaveChannel:             whereHelpernull_String{field: "\"general_notification_configs\".\"leave_channel\""},
+	LeaveMSG:                 whereHelpernull_String{field: "\"general_notification_configs\".\"leave_msg\""},
+	LeaveMSGS:                whereHelpernull_String{field: "\"general_notification_configs\".\"leave_msgs_\""},
+	TopicEnabled:             whereHelpernull_Bool{field: "\"general_notification_configs\".\"topic_enabled\""},
+	TopicChannel:             whereHelpernull_String{field: "\"general_notification_configs\".\"topic_channel\""},
+	CensorInvites:            whereHelpernull_Bool{field: "\"general_notification_configs\".\"censor_invites\""},
+	JoinServerMsgs:           whereHelpernull_String{field: "\"general_notification_configs\".\"join_server_msgs\""},
+	LeaveMsgs:                whereHelpernull_String{field: "\"general_notification_configs\".\"leave_msgs\""},
+	JoinDMDeferScreening:     whereHelperbool{field: "\"general_notification_configs\".\"join_dm_defer_screening\""},
+	JoinServerDeferScreening: whereHelperbool{field: "\"general_notification_configs\".\"join_server_defer_screening\""},
 }
 
 // GeneralNotificationConfigRels is where relationship names are stored.
@@ -276,9 +327,9 @@ func (*generalNotificationConfigR) NewStruct() *generalNotificationConfigR {
 type generalNotificationConfigL struct{}
 
 var (
-	generalNotificationConfigAllColumns            = []string{"guild_id", "created_at", "updated_at", "join_server_enabled", "join_server_channel", "join_server_msgs", "join_dm_enabled", "join_dm_msg", "leave_enabled", "leave_channel", "leave_msgs", "topic_enabled", "topic_channel", "censor_invites"}
-	generalNotificationConfigColumnsWithoutDefault = []string{"guild_id", "created_at", "updated_at"}
-	generalNotificationConfigColumnsWithDefault    = []string{"join_server_enabled", "join_server_channel", "join_server_msgs", "join_dm_enabled", "join_dm_msg", "leave_enabled", "leave_channel", "leave_msgs", "topic_enabled", "topic_channel", "censor_invites"}
+	generalNotificationConfigAllColumns            = []string{"guild_id", "created_at", "updated_at", "join_server_enabled", "join_server_channel", "join_server_msg", "join_server_msgs_", "join_dm_enabled", "join_dm_msg", "leave_enabled", "leave_channel", "leave_msg", "leave_msgs_", "topic_enabled", "topic_channel", "censor_invites", "join_server_msgs", "leave_msgs", "join_dm_defer_screening", "join_server_defer_screening"}
+	generalNotificationConfigColumnsWithoutDefault = []string{"created_at", "updated_at"}
+	generalNotificationConfigColumnsWithDefault    = []string{"guild_id", "join_server_enabled", "join_server_channel", "join_server_msg", "join_server_msgs_", "join_dm_enabled", "join_dm_msg", "leave_enabled", "leave_channel", "leave_msg", "leave_msgs_", "topic_enabled", "topic_channel", "censor_invites", "join_server_msgs", "leave_msgs", "join_dm_defer_screening", "join_server_defer_screening"}
 	generalNotificationConfigPrimaryKeyColumns     = []string{"guild_id"}
 	generalNotificationConfigGeneratedColumns      = []string{}
 )
